@@ -1,5 +1,5 @@
 # EazyFinderProject
-Project in C done based on the Greedy Algorithm (Single Source Shortest Path)
+Project in C done based on the Greedy Algorithm (Single Source Shortest Path) <br>
 <strong>THE PROJECT WILL BE UPOADED SOON</strong>
 
 This project contains a graph that has places of a city that are connected by the local bus facility, cabs, bike, etc., as nodes and, if they are connected by that vehicle then an
