@@ -9,7 +9,7 @@ locations, if they are connected, the edge weight will be shown i;e distance, ti
 path algo) to the destination and connected to starting point will be shown and if their is any mode of transport possible from that location to the destination such as Cycling,
 Metro Service or any other will be shown with the distance, time and cost approximately that would take from their to the destination. So the entire project runs by giving the
 user the mode of transportation possible from start to destination. <br>
-<strong><h4>Our Main Features are:</h4></strong> <br>
+<strong><h4>Our Main Features are:</h4></strong>
 1) Login and Signup that maintains Privacy <br>
 2) Displaying tue map based on user's interest <br>
 3) Providing different modes of transport <br>
