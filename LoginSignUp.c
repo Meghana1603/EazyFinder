@@ -27,7 +27,7 @@ void SignUp_LogIn(char ch){
                     password[i] = getch();
                     c = password[i];
                     if(c == 13) break; // 13 is the ASCII value of \n, this takes input untill the user clicks enter key
-                    else printf("*"); // If not enter key, to hide password we print "*"
+                    else printf("*"); // If not enter key to hide password we print "*"
                     i++;
                }
                password[i] = '\0';
