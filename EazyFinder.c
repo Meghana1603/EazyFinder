@@ -296,13 +296,8 @@ void EazyFinder(){
 }
 
 // Add-Ons
-void check_traffic(){
-
-}
-
 void displayMap(){
      int i, j;
-     // printf("From\t\t\tTo\t\tCost\n");
      for(i = 0 ; i <  noOfPlaces ; i++){
           for(j = 0 ; j <  noOfPlaces ; j++){
                if(city_adj_mat[i][j]){
@@ -314,7 +309,7 @@ void displayMap(){
 }
 
 // Signup and Login Code
-/*char SignUp_LogIn(char ch){
+char SignUp_LogIn(char ch){
      char username[20], password[20], scannedUsername[20], scannedPassword[20], c, found = '0';
      FILE *adminFile;
      int i = 0;
@@ -387,16 +382,16 @@ char callSignupLogin(){
      if(strcmp(strlwr(SLChoice), "signup") == 0)
           return SignUp_LogIn('S');
      return SignUp_LogIn('L');
-}*/
+}
 
 void main()
 {
-     /*char returned, choice;*/
+     char returned, choice;
      int i, j;
      char mapChoice;
-     /*do{
+     do{
           returned = callSignupLogin();
-          if(returned == '1'){*/
+          if(returned == '1'){
                for(i = 0 ; i < noOfPlaces ; i++)
                     for(j = 0 ; j < noOfPlaces ; j++)
                          city_adj_mat[i][j] = 0; // Initializing the adj_mat
@@ -409,12 +404,12 @@ void main()
                }
                printf("\n");
                EazyFinder();
-               /*choice = 'N';*/
-          /*} else {
+               choice = 'N';
+          } else {
                printf("Want to Try Again [Y/N]: ");
                scanf(" %c", &choice); // If 'Y' the user will get a chance to again signup/login
           }
           if(choice == 'N' || choice == 'n')
                printf("Have A Great Day Ahead! :)\n");
-     }while(choice == 'Y' || choice == 'y');*/
+     }while(choice == 'Y' || choice == 'y');
 }
