@@ -48,12 +48,12 @@ void connect_places(int source, int destinsation, int distance){
 void formCity(){
      // Connections of Cities will be done here
      connect_places(0, 1, 10);
-	connect_places(0, 3, 30);
-	connect_places(0, 4, 100);
-	connect_places(1, 2, 50);
-	connect_places(2, 3, 20);
-	connect_places(2, 4, 10);
-	connect_places(3, 4, 60);
+     connect_places(0, 3, 30);
+     connect_places(0, 4, 100);
+     connect_places(1, 2, 50);
+     connect_places(2, 3, 20);
+     connect_places(2, 4, 10);
+     connect_places(3, 4, 60);
 }
 
 typedef struct mode_of_transport{
