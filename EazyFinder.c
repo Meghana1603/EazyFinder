@@ -16,7 +16,7 @@
      Discounts on prices
      Traffic
      Checking Availability of Vehicles based on booking time
-     Add services for other places too (Bengaluru, Chennai.....)
+     Add services for other places too (Bengaluru, Chennai....)
      Print Bill
 */
 
