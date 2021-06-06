@@ -11,7 +11,7 @@ Metro Service or any other will be shown with the distance, time and cost approx
 user the mode of transportation possible from start to destination. <br>
 <strong><h4>Our Main Features are:</h4></strong>
 1) Login and Signup that maintains Privacy <br>
-2) Displaying tue map based on user's interest <br>
+2) Displaying the map based on user's interest <br>
 3) Providing different modes of transport <br>
 4) Giving Discounts on the Prices <br>
 5) Checking Availability of Vehicles based on the booking date and time <br>
