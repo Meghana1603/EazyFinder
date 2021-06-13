@@ -6,21 +6,20 @@
 #include<windows.h>
 #include<conio.h>
 #include<time.h>
+#include<unistd.h>
 #define max_num_of_characters 20
 #define noOfVehicles 5
 
 char SignUp_LogIn(char ch);
-void connect_places(int src, int dest, int distance);
 void formCity(char city[]);
+void connect_places(int src, int dest, int distance);
+void displayMap();
+void EazyFinder();
 void location_check(char* source, char* destination);
 void check_for_case(char* source, char* destination, int source_index, int destination_index, int case_);
 void change_location(char source[], char destination[], int case_);
 int SingleSourceShortestPath(int source_index, int destination_index, int case_);
 void printRoute(int source_index, int destination_index, int shortestPath[], int path[], int case_);
-void EazyFinder();
-
-// Add-Ons
-void displayMap();
 void modeOfTransportBasedOnTraffic(int k, char route[][max_num_of_characters]);
 
 int noOfPlaces;
@@ -89,12 +88,7 @@ void modeOfTransportBasedOnTraffic(int k, char route[][max_num_of_characters]){
      extraCostApplied[0] = 0;
      for (i = 1 ; i < noOfVehicles; i++){ // 5 Vehicles
           printf("%d \t %s \t\t %d", i + 1, vehicles[i], cost_per_km[i]);
-          // if(strcmp(end_time[i-1], "00:00:00") == 0 &&
-          //    strcmp(timeString, end_time[i-1]) <= 0 &&
-          //    strcmp(timeString, start_time[i-1]) < 0){
-          //         printf(" \t\t %d\n", extra_cost[i]);
-          //         extraCostApplied[i] = 1;
-          /*} else */if(strcmp(timeString, start_time[i-1]) <= 0
+          if(strcmp(timeString, start_time[i-1]) <= 0
              || strcmp(timeString, end_time[i-1]) >= 0){
                   printf(" \t\t %d\n", extra_cost[i]);
                   extraCostApplied[i] = 1;
@@ -109,11 +103,11 @@ void modeOfTransportBasedOnTraffic(int k, char route[][max_num_of_characters]){
           for(i = k ; i > 0 ; i--){
                traffic = (float)rand()/RAND_MAX;
                if(traffic == 0){
-                    printf("The route is Clear from %s to %s\n", route[i], route[i-1]);
+                    printf("\nThe route is Clear from %s to %s\n", route[i], route[i-1]);
                } else if(traffic > 0 && traffic <= 0.5){
-                    printf("Their is Moderate Traffic from %s to %s\n", route[i], route[i-1]);
+                    printf("\nTheir is Moderate Traffic from %s to %s\n", route[i], route[i-1]);
                } else if(traffic > 0.5 && traffic <= 1){
-                    printf("Their is Heavy Traffic from %s to %s\n", route[i], route[i-1]);
+                    printf("\nTheir is Heavy Traffic from %s to %s\n", route[i], route[i-1]);
                }
                for(j = 0 ; j < noOfPlaces ; j++){
                     if(strcmp(places[j], route[i]) == 0) source_index = j;
@@ -160,7 +154,7 @@ void modeOfTransportBasedOnTraffic(int k, char route[][max_num_of_characters]){
                mst_array[0].cost = (SingleSourceShortestPath(source_index, destination_index, 2))*(cost_per_km[id-1] + extra_cost[id-1]);
      }
 
-     printf("Your Bill:\n");
+     printf("\nYour Bill:\n");
      generate_bill(mst_array, l);
 }
 
@@ -325,7 +319,6 @@ void EazyFinder(){
      location_check(source, destination);
 }
 
-// Add-Ons
 void displayMap(){
      int i, j;
      printf(" From\t\t\t To\t\tDistance\n");
@@ -359,33 +352,49 @@ void formCity(char city[]){
 
 // Signup and Login Code
 char SignUp_LogIn(char ch){
-     char username[20], password[20], scannedUsername[20], scannedPassword[20], c, found = '0';
+     const int maxPasswordLength = 16;
+     char username[20], password[maxPasswordLength+1], scannedUsername[20], scannedPassword[maxPasswordLength+1], c, found = '0';
      FILE *adminFile;
      int i = 0;
      if(ch == 'S'){
-          printf("Username: ");
-          scanf("%s", username);
-          adminFile = fopen("LogInSignUpDatabase.txt", "r");
-          while(fscanf(adminFile, "%s %s\n", scannedUsername, scannedPassword) != EOF){
-               if(strcmp(scannedUsername, username) == 0){
-                    found = '1';
-                    printf("Username already taken\n");
-                    return '0';
+          do{
+               printf("Username: ");
+               scanf("%s", username);
+               adminFile = fopen("LogInSignUpDatabase.txt", "r");
+               while(fscanf(adminFile, "%s %s\n", scannedUsername, scannedPassword) != EOF){
+                    if(strcmp(scannedUsername, username) == 0){
+                         found = '1';
+                         printf("Username already taken\n");
+                         break;
+                    } else {
+                         found = '0';
+                    }
                }
-          }
+          } while(found != '0'); // Only comes out when the username is a different one
 
-          if(found == '0'){
-               printf("Set Password: ");
-               while(i < 20){
-                    password[i] = getch();
-                    c = password[i];
-                    if(c == 13) break;
-                    else printf("*");
-                    i++;
+          printf("Set Password: ");
+          while(1){
+               ch = getch();
+               if(ch == 13){ // if enter key
+                    break;
+               } else if(ch == 32 || ch == 9){ // if space or tab key
+                    continue;
+               } else if(ch == 8){ // if backspace
+                    if(i > 0){
+                         i--;
+                         password[i] = '\0';
+                         printf("\b \b");
+                    }
+               } else{
+                    if(i < maxPasswordLength){
+                         password[i] = ch;
+                         i++;
+                         printf("*");
+                    }
                }
-               password[i] = '\0';
-               printf("\n");
           }
+          password[i] = '\0';
+          printf("\n");
 
           fclose(adminFile);
           adminFile = fopen("LogInSignUpDatabase.txt" , "a");
@@ -399,12 +408,25 @@ char SignUp_LogIn(char ch){
           printf("Username: ");
           scanf("%s", username);
           printf("Password: ");
-          while(i < 20){
-               password[i] = getch();
-               c = password[i];
-               if(c == 13) break;
-               else printf("*");
-               i++;
+          while(1){
+               ch = getch();
+               if(ch == 13){ // if enter key
+                    break;
+               } else if(ch == 32 || ch == 9){ // if space or tab key
+                    continue;
+               } else if(ch == 8){ // if backspace
+                    if(i > 0){
+                         i--;
+                         password[i] = '\0';
+                         printf("\b \b");
+                    }
+               } else{
+                    if(i < maxPasswordLength){
+                         password[i] = ch;
+                         i++;
+                         printf("*");
+                    }
+               }
           }
           password[i] = '\0';
           printf("\n");
@@ -443,8 +465,10 @@ void main()
      int i, j, cityChoice, metroAvailability;
      char mapChoice, ch;
      char city[10], city1[10], place[max_num_of_characters];
-     char path[60] = "P:\\EazyFinderProject\\CitiesInfo\\";
+     char path[60];
      FILE *cityPointer;
+     getcwd(path, sizeof(path)); // copies the current working directory into path string
+     strcat(path, "\\CitiesInfo\\");
 
      char returned, choice; // Variables used for Login Signup Code
      do{
@@ -515,7 +539,7 @@ void main()
                EazyFinder();
                choice = 'N';
           } else {
-               printf("Want to Try Again [Y/N]: ");
+               printf("Want to Try Again [Y/N]? ");
                scanf(" %c", &choice); // If 'Y' the user will get a chance to again signup/login
           }
           if(choice == 'N' || choice == 'n')
