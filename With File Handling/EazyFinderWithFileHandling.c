@@ -20,7 +20,9 @@ void check_for_case(char* source, char* destination, int source_index, int desti
 void change_location(char source[], char destination[], int case_);
 int SingleSourceShortestPath(int source_index, int destination_index, int case_);
 void printRoute(int source_index, int destination_index, int shortestPath[], int path[], int case_);
+int inputID();
 void modeOfTransportBasedOnTraffic(int k, char route[][max_num_of_characters]);
+void generate_bill(mode_of_transport mst_array[], int l);
 
 int noOfPlaces;
 char **places;
@@ -49,6 +51,18 @@ void generate_bill(mode_of_transport mst_array[], int l){
      if(tolower(choice) == 'y'){
           EazyFinder();
      }
+}
+
+int inputID(){ // Takes the Vehicle ID as Input
+     int id;
+     while(id < 1 || id > 5){
+          scanf("%d", &id);
+          if(id < 1 || id > 5){
+               printf("Invalid ID\n");
+               printf("Select a Mode of Transportation: ");
+          }
+     }
+     return id;
 }
 
 void modeOfTransportBasedOnTraffic(int k, char route[][max_num_of_characters]){
@@ -114,7 +128,7 @@ void modeOfTransportBasedOnTraffic(int k, char route[][max_num_of_characters]){
                     if(strcmp(places[j], route[i-1]) == 0) destination_index = j;
                }
                printf("Enter the ID of Mode of Transport you Prefer: ");
-               scanf("%d", &id);
+               id = inputID();
                while(id == 4){
                     if(metro[source_index] == 0 && metro[destination_index] == 0){
                          printf("Metro not Available at %s and %s\n", route[i], route[i-1]);
@@ -126,7 +140,7 @@ void modeOfTransportBasedOnTraffic(int k, char route[][max_num_of_characters]){
                          break;
                     }
                     printf("Please Select another mode of transport: ");
-                    scanf("%d", &id);
+                    id = inputID();
                }
                strcpy(mst_array[l].source, route[i]);
                strcpy(mst_array[l].destination, route[i-1]);
@@ -144,7 +158,7 @@ void modeOfTransportBasedOnTraffic(int k, char route[][max_num_of_characters]){
                if(strcmp(places[j], route[0]) == 0) destination_index = j;
           }
           printf("Select a Mode of Transportation: ");
-          scanf("%d", &id);
+          id = inputID();
           strcpy(mst_array[0].source, route[k]);
           strcpy(mst_array[0].destination, route[0]);
           strcpy(mst_array[0].mst, vehicles[id-1]);
