@@ -9,30 +9,20 @@
 #define max_num_of_characters 20
 #define noOfPlaces sizeof(places)/sizeof(*places)
 #define noOfVehicles 5
-     
-/*
-     Take Places from file
-     Displaying Map of our Services on user interest
-     Discounts on prices
-     Traffic
-     Checking Availability of Vehicles based on booking time
-     Add services for other places too (Bengaluru, Chennai....)
-     Print Bill
-*/
 
 char SignUp_LogIn(char ch);
-void connect_places(int src, int dest, int distance);
 void formCity();
+void connect_places(int src, int dest, int distance);
+void displayMap();
+void EazyFinder();
 void location_check(char* source, char* destination);
 void check_for_case(char* source, char* destination, int source_index, int destination_index, int case_);
 void change_location(char source[], char destination[], int case_);
 int SingleSourceShortestPath(int source_index, int destination_index, int case_);
 void printRoute(int source_index, int destination_index, int shortestPath[], int path[], int case_);
-void EazyFinder();
-
-// Add-Ons
-void displayMap();
-void modeOfTransportBasedOnTraffic(int k, char route[][k]);
+int inputID();
+void modeOfTransportBasedOnTraffic(int k, char route[][max_num_of_characters]);
+void generate_bill(mode_of_transport mst_array[], int l);
 
 //Take values from file
 char places[][max_num_of_characters]={"lbnagar", "kothapet", "ameerpet", "chaithanyapuri", "vanasthalipuram"};
@@ -48,89 +38,116 @@ void connect_places(int source, int destinsation, int distance){
 void formCity(){
      // Connections of Cities will be done here
      connect_places(0, 1, 10);
-     connect_places(0, 3, 30);
-     connect_places(0, 4, 100);
-     connect_places(1, 2, 50);
-     connect_places(2, 3, 20);
-     connect_places(2, 4, 10);
-     connect_places(3, 4, 60);
+	connect_places(0, 3, 30);
+	connect_places(0, 4, 100);
+	connect_places(1, 2, 50);
+	connect_places(2, 3, 20);
+	connect_places(2, 4, 10);
+	connect_places(3, 4, 60);
 }
 
 typedef struct mode_of_transport{
-          char source[max_num_of_characters], destination[max_num_of_characters], mst[6];
-          int cost;
-} transport;
+     char source[max_num_of_characters], destination[max_num_of_characters], mst[6];
+     int cost;
+} mode_of_transport;
 
-void generate_bill(transport mst_array[], int k){
+void generate_bill(mode_of_transport mst_array[], int l){
      int i, total_cost = 0;
-     printf("Mode of Transport | From | To | Price\n");
-     for(i = k-2 ; i >= 0 ; i--){
-          printf("%-20s %-20s -> %-20s: %d\n", mst_array[i].mst, mst_array[i].source, mst_array[i].destination, mst_array[i].cost);
+     char choice;
+     printf("Mode of Transport      From\t\t    To\t\t     Price\n");
+     for(i = 0 ; i < l ; i++){
+          printf("%-20s %-20s %-20s %d\n", mst_array[i].mst, mst_array[i].source, mst_array[i].destination, mst_array[i].cost);
           total_cost += mst_array[i].cost;
      }
      printf("Total Cost: %d\n", total_cost);
+     printf("Do You Want to Continue [Y/N]: ");
+     scanf(" %c", &choice);
+     if(tolower(choice) == 'y'){
+          EazyFinder();
+     }
 }
 
-void modeOfTransportBasedOnTraffic(int k, char route[noOfPlaces][k]){
-     int i, j, id;
+int inputID(){ // Takes the Vehicle ID as Input
+     int id;
+     while(id < 1 || id > 5){
+          scanf("%d", &id);
+          if(id < 1 || id > 5){
+               printf("Invalid ID\n");
+               printf("Select a Mode of Transportation: ");
+          }
+     }
+     return id;
+}
+
+void modeOfTransportBasedOnTraffic(int k, char route[][max_num_of_characters]){
+     int i, j, l = 0, id;
      char trafficChoice;
-     float traffic[k];
+     float traffic;
      int source_index, destination_index;
-     transport mst_array[k-1];
+     mode_of_transport mst_array[k-1];
 
      printf("Want to Check the Traffic [Y/N]: ");
      scanf(" %c", &trafficChoice);
+
+     // Display Cost Per Vehicle Table
+     printf("\nCost Per Kilometer of Vehicles Available:\n");
+     printf("Id \t Vehicle \t Price\n");
+     for (i = 0; i < noOfVehicles; i++){ // 5 Vehicles
+          printf("%d \t %s \t\t %d\n", i + 1, vehicles[i], cost_per_km[i]); 
+     }
+
      if(tolower(trafficChoice) == 'y'){
           srand(time(0));
-          printf("\n\n");
-          for(i = k ; i >= 0 ; i--){
-               printf("%s ", route[i]);
-          }
-          printf("\n\n");
-          for(i = k ; i >= 0 ; i--){
-               printf("%-20s: ", route[i]);
-               traffic[i] = (float)rand()/RAND_MAX;
-               if(traffic[i] == 0) printf("No Traffic");
-               else if(traffic[i] > 0 && traffic[i] <= 0.5) printf("Moderate Traffic");
-               else if(traffic[i] > 0.5 && traffic[i] <= 1) printf("Heavy Traffic");
-               printf("\n");
-          }
-
-          // Display Cost Per Vehicle Table
-          printf("\nCost Per Kilometer of Vehicles Available:\n");
-          printf("Id \t Vehicle \t Price\n");
-		for (i = 0; i < 5; i++){ // 5 Vehicles
-			printf("%d \t %s \t\t %d\n", i + 1, vehicles[i], cost_per_km[i]);
-          }
-
           for(i = k ; i > 0 ; i--){
-               if(traffic[i] == 0){
-                    printf("The route is Clear from %s to %s\n", route[i], route[i-1]);
-               } else if(traffic[i] > 0 && traffic[i] <= 0.5){
-                    printf("Their is Moderate Traffic from %s to %s\n", route[i], route[i-1]);
-               } else if(traffic[i] > 0.5 && traffic[i] <= 1){
-                    printf("The route is Clear from %s to %s. Choose a Better Transport\n", route[i], route[i-1]);
+               traffic = (float)rand()/RAND_MAX;
+               if(traffic == 0){
+                    printf("\nThe route is Clear from %s to %s\n", route[i], route[i-1]);
+               } else if(traffic > 0 && traffic <= 0.5){
+                    printf("\nTheir is Moderate Traffic from %s to %s\n", route[i], route[i-1]);
+               } else if(traffic > 0.5 && traffic <= 1){
+                    printf("\nTheir is Heavy Traffic from %s to %s\n", route[i], route[i-1]);
                }
                printf("Enter the ID of Mode of Transport you Prefer: ");
-               scanf("%d", &id);
-               while(id == 4 && metro[id-1] == 0){
-                    printf("Metro not Available at %s", route[i]);
-                    printf("Please Select another mode of transport: ");
-                    scanf("%d", &id);
+               id = inputID();
+               while(id == 4){
+                    if(metro[source_index] == 0 && metro[destination_index] == 0){
+                         printf("Metro not Available at %s and %s\n", route[i], route[i-1]);
+                    } else if(metro[source_index] == 0){
+                         printf("Metro not Available at %s\n", route[i]);
+                    } else if(metro[destination_index] == 0){
+                         printf("Metro not Available at %s\n", route[i-1]);
+                    } else {
+                         break;
+                    }
+                    printf("Select a Mode of Transportation: ");
+                    id = inputID();
                }
-               strcpy(mst_array[i].source, route[i]);
-               strcpy(mst_array[i].destination, route[i-1]);
-               strcpy(mst_array[i].mst, vehicles[id-1]);
+               strcpy(mst_array[l].source, route[i]);
+               strcpy(mst_array[l].destination, route[i-1]);
+               strcpy(mst_array[l].mst, vehicles[id-1]);
                for(j = 0 ; j < noOfPlaces ; j++){
                     if(strcmp(places[j], route[i]) == 0) source_index = j;
                     if(strcmp(places[j], route[i-1]) == 0) destination_index = j;
                }
-               mst_array[i].cost = (SingleSourceShortestPath(source_index, destination_index, 2))*cost_per_km[id-1];
+               mst_array[l].cost = (SingleSourceShortestPath(source_index, destination_index, 2))*cost_per_km[id-1];
+               l++;
           }
-
-          printf("Your Bill:\n");
-          generate_bill(mst_array, k);
+     } else {
+          l = 1;
+          for(j = 0 ; j < noOfPlaces ; j++){
+               if(strcmp(places[j], route[k]) == 0) source_index = j;
+               if(strcmp(places[j], route[0]) == 0) destination_index = j;
+          }
+          printf("Select a Mode of Transportation: ");
+          id = inputID();
+          strcpy(mst_array[0].source, route[k]);
+          strcpy(mst_array[0].destination, route[0]);
+          strcpy(mst_array[0].mst, vehicles[id-1]);
+          mst_array[0].cost = (SingleSourceShortestPath(source_index, destination_index, 2))*cost_per_km[id-1];
      }
+
+     printf("Your Bill:\n");
+     generate_bill(mst_array, l);
 }
 
 void printRoute(int source_index, int destination_index, int shortestPath[], int path[], int case_){
@@ -160,7 +177,6 @@ void printRoute(int source_index, int destination_index, int shortestPath[], int
 
 int SingleSourceShortestPath(int source_index, int destination_index, int case_){
      int i, j, k, shortestPath[noOfPlaces], visited[noOfPlaces], path[noOfPlaces], min_dist, min_dist_vertex;
-     
      // Initializations
      for(i = 0 ; i < noOfPlaces ; i++){
           if(city_adj_mat[source_index][i])
@@ -295,13 +311,13 @@ void EazyFinder(){
      location_check(source, destination);
 }
 
-// Add-Ons
 void displayMap(){
      int i, j;
-     for(i = 0 ; i <  noOfPlaces ; i++){
-          for(j = 0 ; j <  noOfPlaces ; j++){
+     printf(" From\t\t\t To\t\tDistance\n");
+     for(i = 0 ; i < noOfPlaces ; i++){
+          for(j = 0 ; j < noOfPlaces ; j++){
                if(city_adj_mat[i][j]){
-                    printf("%-20s %-20s %-20d\n", places[i], places[j], city_adj_mat[i][j]);
+                    printf("%-20s %-20s %-3d\n", places[i], places[j], city_adj_mat[i][j]);
                }
           }
           printf("\n");
@@ -310,33 +326,49 @@ void displayMap(){
 
 // Signup and Login Code
 char SignUp_LogIn(char ch){
-     char username[20], password[20], scannedUsername[20], scannedPassword[20], c, found = '0';
+     const int maxPasswordLength = 16;
+     char username[20], password[maxPasswordLength+1], scannedUsername[20], scannedPassword[maxPasswordLength+1], c, found = '0';
      FILE *adminFile;
      int i = 0;
      if(ch == 'S'){
-          printf("Username: ");
-          scanf("%s", username);
-          adminFile = fopen("LogInSignUpDatabase.txt", "r");
-          while(fscanf(adminFile, "%s %s\n", scannedUsername, scannedPassword) != EOF){
-               if(strcmp(scannedUsername, username) == 0){
-                    found = '1';
-                    printf("Username already taken\n");
-                    return '0';
+          do{
+               printf("Username: ");
+               scanf("%s", username);
+               adminFile = fopen("LogInSignUpDatabase.txt", "r");
+               while(fscanf(adminFile, "%s %s\n", scannedUsername, scannedPassword) != EOF){
+                    if(strcmp(scannedUsername, username) == 0){
+                         found = '1';
+                         printf("Username already taken\n");
+                         break;
+                    } else {
+                         found = '0';
+                    }
                }
-          }
+          } while(found != '0'); // Only comes out when the username is a different one
 
-          if(found == '0'){
-               printf("Set Password: ");
-               while(i < 20){
-                    password[i] = getch();
-                    c = password[i];
-                    if(c == 13) break;
-                    else printf("*");
-                    i++;
+          printf("Set Password: ");
+          while(1){
+               ch = getch();
+               if(ch == 13){ // if enter key
+                    break;
+               } else if(ch == 32 || ch == 9){ // if space or tab key
+                    continue;
+               } else if(ch == 8){ // if backspace
+                    if(i > 0){
+                         i--;
+                         password[i] = '\0';
+                         printf("\b \b");
+                    }
+               } else{
+                    if(i < maxPasswordLength){
+                         password[i] = ch;
+                         i++;
+                         printf("*");
+                    }
                }
-               password[i] = '\0';
-               printf("\n");
           }
+          password[i] = '\0';
+          printf("\n");
 
           fclose(adminFile);
           adminFile = fopen("LogInSignUpDatabase.txt" , "a");
@@ -350,12 +382,25 @@ char SignUp_LogIn(char ch){
           printf("Username: ");
           scanf("%s", username);
           printf("Password: ");
-          while(i < 20){
-               password[i] = getch();
-               c = password[i];
-               if(c == 13) break;
-               else printf("*");
-               i++;
+          while(1){
+               ch = getch();
+               if(ch == 13){ // if enter key
+                    break;
+               } else if(ch == 32 || ch == 9){ // if space or tab key
+                    continue;
+               } else if(ch == 8){ // if backspace
+                    if(i > 0){
+                         i--;
+                         password[i] = '\0';
+                         printf("\b \b");
+                    }
+               } else{
+                    if(i < maxPasswordLength){
+                         password[i] = ch;
+                         i++;
+                         printf("*");
+                    }
+               }
           }
           password[i] = '\0';
           printf("\n");
