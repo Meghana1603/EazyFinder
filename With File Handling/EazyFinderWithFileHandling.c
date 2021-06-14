@@ -22,7 +22,6 @@ int SingleSourceShortestPath(int source_index, int destination_index, int case_)
 void printRoute(int source_index, int destination_index, int shortestPath[], int path[], int case_);
 int inputID();
 void modeOfTransportBasedOnTraffic(int k, char route[][max_num_of_characters]);
-void generate_bill(mode_of_transport mst_array[], int l);
 
 int noOfPlaces;
 char **places;
