@@ -21,6 +21,7 @@ void change_location(char source[], char destination[], int case_);
 int SingleSourceShortestPath(int source_index, int destination_index, int case_);
 void printRoute(int source_index, int destination_index, int shortestPath[], int path[], int case_);
 int inputID();
+void currentTime();
 void modeOfTransportBasedOnTraffic(int k, char route[][max_num_of_characters]);
 
 int noOfPlaces;
@@ -64,6 +65,15 @@ int inputID(){ // Takes the Vehicle ID as Input
      return id;
 }
 
+char timeString[9];
+void currentTime(){
+     time_t current_time;
+     struct tm * time_info;
+     time(&current_time);
+     time_info = localtime(&current_time);
+     strftime(timeString, sizeof(timeString), "%H:%M:%S", time_info);
+}
+
 void modeOfTransportBasedOnTraffic(int k, char route[][max_num_of_characters]){
      int i, j, l = 0, id, extraCost, extraCostApplied[noOfVehicles-1];
      char trafficChoice, startTimeString[9], endTimeString[9];
@@ -84,12 +94,7 @@ void modeOfTransportBasedOnTraffic(int k, char route[][max_num_of_characters]){
      }
      fclose(availabilityTimePointer);
      
-     time_t current_time;
-     struct tm * time_info;
-     char timeString[9];
-     time(&current_time);
-     time_info = localtime(&current_time);
-     strftime(timeString, sizeof(timeString), "%H:%M:%S", time_info);
+     currentTime(); // Sets timeString to the current time
 
      printf("Do You Want to Select Mode of Transportation based on Traffic [Y/N]: ");
      scanf(" %c", &trafficChoice);
@@ -353,7 +358,9 @@ void connect_places(int source, int destinsation, int distance){
 void formCity(char city[]){
      // Connections of Cities will be done here
      int source_index, destination_index, distance;
-     char path[60] = "P:\\EazyFinderProject\\CitiesInfo\\";
+     char path[100];
+     getcwd(path, sizeof(path));
+     strcat(path, "\\CitiesInfo\\");
      strcat(city, "-connections.txt");
      strcat(path, city);
      FILE *cityConnectionsPointer = fopen(path, "r");
@@ -478,16 +485,17 @@ void main()
      int i, j, cityChoice, metroAvailability;
      char mapChoice, ch;
      char city[10], city1[10], place[max_num_of_characters];
-     char path[60];
+     char path[100];
      FILE *cityPointer;
      getcwd(path, sizeof(path)); // copies the current working directory into path string
+     printf("\n%s\n", path);
      strcat(path, "\\CitiesInfo\\");
 
      char returned, choice; // Variables used for Login Signup Code
      do{
           returned = callSignupLogin();
           if(returned == '1'){
-               printf("Welcome to EazyFinder!!!!\n");
+               printf("\n---------------------Welcome to EazyFinder!!!!---------------------\n");
                printf("Select one of the City IDs:\n1) Hyderabad\n2) Bengaluru\n3) Chennai\n");
                scanf("%d", &cityChoice);
                do{
