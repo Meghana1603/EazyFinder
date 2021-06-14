@@ -13,8 +13,13 @@ void main()
      while(1){
           ch = getch();
           if(ch == 13){ // if enter key
-               break;
-          } else if(ch == 32 || ch == 9){ // if space or tab key
+               if(i == 0){ // if password is empty
+                    printf("\nPassword Cannot be Empty\n");
+                    printf("Password: ");
+               } else { // id password isn't empty, stop
+                    break;
+               }
+          } else if(ch == 32 || ch == 9){ // if space or tab key is pressed ignore it
                continue;
           } else if(ch == 8){ // if backspace
                if(i > 0){
