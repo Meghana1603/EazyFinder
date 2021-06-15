@@ -488,7 +488,6 @@ void main()
      char path[100];
      FILE *cityPointer;
      getcwd(path, sizeof(path)); // copies the current working directory into path string
-     printf("\n%s\n", path);
      strcat(path, "\\CitiesInfo\\");
 
      char returned, choice; // Variables used for Login Signup Code
