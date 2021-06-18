@@ -13,11 +13,12 @@
 #define coupon_length 8 // 7 for coupon and 1 for '\0'
 #define maxPasswordLength 16
 
+void MainCode();
 bool callSignupLogin();
 bool SignUp_LogIn(char ch);
-void passwordInput(char* password, char c);
+void passwordInput(char* password, char loginSignupCharacter, char passwordChangeCharacter);
 long long int encryptPassword(char* password);
-bool isPasswordAccepted(char* password);
+bool isPasswordAccepted(char* password, char ch);
 void formCity(char city[]);
 void connect_places(int src, int dest, int distance);
 void displayMap();
@@ -35,7 +36,7 @@ void loadDetails(char source[], char destination[], int cost, char couponName[],
 // Add-Ons
 void transactionHistory();
 void passwordChange();
-void accountDeletion();
+void accountDeletion(char case_);
 
 int noOfPlaces;
 char **places;
@@ -145,7 +146,7 @@ int discount(int cost, mode_of_transport mst_array[], int l){
                }
           }
           else {
-               printf("ThankYou!!\n");
+               printf("Thank You!!\n");
                return -1;
           }
      } 
@@ -180,12 +181,6 @@ void generate_bill(mode_of_transport mst_array[], int l){
      if(discountSuccess == -1){
           loadDetails(mst_array[0].source, mst_array[l-1].destination,
                       cost, "-", 0, cost);
-     }
-
-     printf("Do You Want to Continue [Y/N]: ");
-     scanf(" %c", &choice);
-     if(tolower(choice) == 'y'){
-          EazyFinder();
      }
 }
 
@@ -232,8 +227,13 @@ void modeOfTransportBasedOnTraffic(int k, char route[][max_num_of_characters]){
      
      currentTime(); // Sets timeString to the current time
 
-     printf("Do You Want to Select Mode of Transportation based on Traffic [Y/N]: ");
-     scanf(" %c", &trafficChoice);
+     do{
+          printf("Do You Want to Select Mode of Transportation based on Traffic [Y/N]: ");
+          scanf(" %c", &trafficChoice);
+          if(tolower(trafficChoice) != 'y' && tolower(trafficChoice) != 'n'){
+               printf("Please Select a Valid Option\n");
+          }
+     }while(tolower(trafficChoice) != 'y' && tolower(trafficChoice) != 'n');
 
      // Display Cost Per Vehicle Table
      printf("\nCost Per Kilometer of Vehicles Available:\n");
@@ -387,10 +387,15 @@ int SingleSourceShortestPath(int source_index, int destination_index, int case_)
 void change_location(char *source, char *destination, int case_){
      char choice;
      int i, j, distance;
-     printf("Want to Change the Location(s) (Type 'N' to exit) [Y/N]: ");
-     scanf(" %c", &choice);
-     if(choice == 'Y' || choice == 'y'){
-          if(case_ == 1) {
+     do{
+          printf("Want to Change the Location(s) (Type 'N' to exit) [Y/N]: ");
+          scanf(" %c", &choice);
+          if(tolower(choice) != 'y' && tolower(choice) != 'n'){
+               printf("Please Select a Valid Option\n");
+          }
+     }while(tolower(choice) != 'y' && tolower(choice) != 'n');
+     if(tolower(choice) == 'y'){
+          if(case_ == 1 || case_ == 4) {
                printf("Enter the Source Location Again: ");
                scanf("%s[^\n]",source);
                printf("Enter the Destination Again: ");
@@ -415,10 +420,11 @@ void change_location(char *source, char *destination, int case_){
      case 1: source and destination are wrong
      case 2: source is wrong
      case 3: destination is wrong
-     case 4: source and destination are correct
+     case 4: source and destination same
+     case 5: source and destination are correct
 */
 void check_for_case(char* source, char* destination, int source_index, int destination_index, int case_){
-     if(case_ == 4){
+     if(case_ == 5){
           SingleSourceShortestPath(source_index, destination_index, 1);
      } else if(case_ == 1) {
           printf("Sorry! Our Services are not available at %s and %s\nOr you have entered wrong locations. Please recheck the spellings\n", source, destination);
@@ -428,8 +434,10 @@ void check_for_case(char* source, char* destination, int source_index, int desti
           printf("Sorry! We do not serve from %s to %s\nOr You have eneterd a wrong Destination\n", source, destination);
           printf("\nYou can Reach the following destinations from %s:\n", places[source_index]);
           SingleSourceShortestPath(source_index, destination_index, 0);
+     } else if(case_ == 4){
+          printf("Source and Destination cannot be the same\n");
      }
-     if(case_ != 4){
+     if(case_ != 5){
           change_location(source, destination, case_);
      }
 }
@@ -456,7 +464,8 @@ void location_check(char *source, char *destination){
      if (source_index == -1 && destination_index == -1) case_ = 1;
      else if (source_index == -1) case_ = 2;
      else if (destination_index == -1) case_ = 3;
-     else case_ = 4;
+     else if (source_index == destination_index) case_ = 4;
+     else case_ = 5;
      check_for_case(source, destination, source_index, destination_index, case_);
 }
 
@@ -471,19 +480,6 @@ void EazyFinder(){
      strcpy(destination, strlwr(destination));
      
      location_check(source, destination);
-}
-
-void displayMap(){
-     int i, j;
-     printf(" From\t\t\t To\t\tDistance\n");
-     for(i = 0 ; i < noOfPlaces ; i++){
-          for(j = 0 ; j < noOfPlaces ; j++){
-               if(city_adj_mat[i][j]){
-                    printf("%-20s %-20s %-3d\n", places[i], places[j], city_adj_mat[i][j]);
-               }
-          }
-          printf("\n");
-     }
 }
 
 // Preparing the Adjacency Matrix
@@ -506,15 +502,15 @@ void formCity(char city[]){
      fclose(cityConnectionsPointer);
 }
 
-bool isPasswordAccepted(char* password){
+bool isPasswordAccepted(char* password, char ch){
      int len = strlen(password);
-     bool ret;
+     bool passwordAccepted;
      if(len < 8){
           printf("\nPassword is too Short. Use atleast 8 Characters");
-          ret = false;
+          passwordAccepted = false;
      } else if(len > maxPasswordLength) {
           printf("\nPassword is too Long. Reduce it to a range of 8 to %d Characters", maxPasswordLength);
-          ret = false;
+          passwordAccepted = false;
      }
      int i;
      bool lowerCaseUsed = false, upperCaseUsed = false, splCharUsed = false, numUsed = false;
@@ -532,11 +528,16 @@ bool isPasswordAccepted(char* password){
      if(!numUsed) printf("\nAtleast One Number must be Used");
      if(!splCharUsed) printf("\nAtleast One Special Character must be Used");
 
-     if(ret && lowerCaseUsed && upperCaseUsed && numUsed && splCharUsed)
-          ret = true;
-     if(!ret)
-          printf("\nPassword [Max of %d Characters]: ", maxPasswordLength);
-     return ret;
+     if(passwordAccepted && lowerCaseUsed && upperCaseUsed && numUsed && splCharUsed)
+          passwordAccepted = true;
+     if(!passwordAccepted){
+          if(ch != 'P')
+               printf("\nPassword [Max of %d Characters]: ", maxPasswordLength);
+          else {
+               printf("\nEnter New Password: ");
+          }
+     }
+     return passwordAccepted;
 }
 
 long long encryptPassword(char* password){
@@ -549,7 +550,7 @@ long long encryptPassword(char* password){
      return code;
 }
 
-void passwordInput(char* password, char c){
+void passwordInput(char* password, char loginSignupCharacter, char passwordChangeCharacter){
      char ch;
      int i;
      do{
@@ -577,12 +578,12 @@ void passwordInput(char* password, char c){
                }
           }
           password[i] = '\0';
-          if(c == 'L') break;
-     }while(!isPasswordAccepted(password));
+          if(loginSignupCharacter == 'L') break;
+     }while(!isPasswordAccepted(password, passwordChangeCharacter));
 }
 
 // Add-ons
-void accountDeletion(){
+void accountDeletion(char case_){
      char ch, scannedUsername[20];
      long long scannedPassword;
      FILE* loginSignupPointer = fopen("LogInSignUpDatabase.txt", "r");
@@ -598,6 +599,39 @@ void accountDeletion(){
      rename("LogInSignUpDatabase.txt", "tempFile1.txt");
      rename("tempFile.txt", "LogInSignUpDatabase.txt");
      rename("tempFile1.txt", "tempFile.txt");
+
+     if(case_ != 'P'){
+          char path[150], userFileName[30];
+          getcwd(path, sizeof(path));
+          strcat(path, "\\TransactionHistories\\");
+          strcpy(userFileName, username);
+          strcat(userFileName, ".txt");
+          if(remove(strcat(path, userFileName)) == 0){
+               printf("Account Deleted Successfully\nWe are Sorry to See you go :(\n");
+          }
+          exit(0);
+     }
+}
+
+void passwordChange(){
+     char newPassword[maxPasswordLength+1];
+     bool new;
+     do{
+          new = true;
+          printf("Enter New Password: ");
+          passwordInput(newPassword, 'S', 'P');
+          printf("\n\n%s %s\n\n", password, newPassword);
+          if(strcmp(newPassword, password) == 0){
+               printf("Password Cannot be same as Previous One\n");
+               new = false;
+          }
+     }while(!new);
+     strcpy(password, newPassword);
+     accountDeletion('P');
+     FILE* loginSignupPointer = fopen("LogInSignUpDatabase.txt", "a");
+     fprintf(loginSignupPointer, "%s %lld\n", username, encryptPassword(newPassword));
+     fclose(loginSignupPointer);
+     printf("\n");
 }
 
 void transactionHistory(){
@@ -607,34 +641,39 @@ void transactionHistory(){
      strcpy(userFileName, username);
      strcat(userFileName, ".txt");
      FILE *userFilePointer = fopen(strcat(path, userFileName), "r");
-     printf("Your Transaction History:\n");
-     while((ch = fgetc(userFilePointer)) != EOF)
-          printf("%c", ch);
-     printf("\n");
+     bool empty = false;
+     if((ch = fgetc(userFilePointer)) == EOF){
+          printf("You have No Transactions yet\n");
+          empty = true;
+     }
+     fclose(userFilePointer);
+
+     userFilePointer = fopen(path, "r");
+     if(!empty){
+          printf("Your Transaction History:\n");
+          while((ch = fgetc(userFilePointer)) != EOF)
+               printf("%c", ch);
+          printf("\n");
+     }
      fclose(userFilePointer);
 }
 
-void passwordChange(){
-     char newPassword[maxPasswordLength+1];
-     bool new = true;
-     do{
-          printf("Enter New Password: ");
-          passwordInput(newPassword, 'S');
-          if(strcmp(newPassword, password) == 0){
-               printf("Password Cannot be same as Previous One\n");
-               new = false;
+void displayMap(){
+     int i, j;
+     printf(" From\t\t\t To\t\tDistance\n");
+     for(i = 0 ; i < noOfPlaces ; i++){
+          for(j = 0 ; j < noOfPlaces ; j++){
+               if(city_adj_mat[i][j]){
+                    printf("%-20s %-20s %-3d\n", places[i], places[j], city_adj_mat[i][j]);
+               }
           }
-     }while(!new);
-     accountDeletion();
-     FILE* loginSignupPointer = fopen("LogInSignUpDatabase.txt", "a");
-     fprintf(loginSignupPointer, "%s %lld\n", username, encryptPassword(newPassword));
-     fclose(loginSignupPointer);
-     printf("\n");
+          printf("\n");
+     }
 }
 
 // SignUp and Login Code
 bool SignUp_LogIn(char ch){
-     char password[maxPasswordLength+1], scannedUsername[20];
+     char scannedUsername[20];
      long long int scannedPassword;
      bool found = false;
      FILE *adminFile;
@@ -660,7 +699,7 @@ bool SignUp_LogIn(char ch){
           } while(found); // Only comes out when the username is not used by anyone
 
           printf("Set Password [Max of %d Characters]: ", maxPasswordLength);
-          passwordInput(password, 'S');
+          passwordInput(password, 'S', 'A');
           printf("\n");
 
           adminFile = fopen("LogInSignUpDatabase.txt" , "a");
@@ -685,7 +724,7 @@ bool SignUp_LogIn(char ch){
           scanf("%s", username);
 
           printf("Password: ");
-          passwordInput(password, 'L');
+          passwordInput(password, 'L', 'A');
           printf("\n");
 
           adminFile = fopen("LogInSignUpDatabase.txt", "r");
@@ -715,8 +754,7 @@ bool callSignupLogin(){
      }
 }
 
-void main(int *args)
-{
+void MainCode(){
      int i, j, cityChoice, metroAvailability;
      char city[10], city1[10], place[max_num_of_characters], path[100];
      FILE *cityPointer;
@@ -727,114 +765,117 @@ void main(int *args)
      char choice, ch;
      bool returned;
      int menuChoice;
+     do{
+          printf("\nSelect an Option:\n");
+          printf("1) Bookings\n2) Transaction History\n3) Password Change\n4) Account Deletion\n");
+          scanf("%d", &menuChoice);
 
-     if(sizeof(args)/sizeof(args[0]) > 0){
+          switch(menuChoice){
+               case 1:
+                    printf("\n---------------------Welcome to EazyFinder!!!!---------------------\n");
+                    printf("Select one of the City IDs:\n1) Hyderabad\n2) Bengaluru\n3) Chennai\n");
+                    scanf("%d", &cityChoice);
+                    do{
+                         switch(cityChoice){
+                              case 1: strcpy(city, "hyderabad"); // Hyderabad
+                                   break;
+                              case 2: strcpy(city, "bengaluru"); // Bengaluru
+                                   break;
+                              case 3: strcpy(city, "chennai"); // Chennai
+                                   break;
+                              default:printf("Please Select a valid Option\nSelect one of the City IDs: ");
+                                   scanf("%d", &cityChoice);
+                         }
+                    }while(cityChoice < 1 || cityChoice > 3);
+
+                    strcpy(city1, city); //city1 is used as a parameter for formCity function, just like a container for city string
+                    strcat(city, ".txt"); // .txt is concatenated to get the full file name
+                    strcat(path, city); // city file name is concatenated to the path (cwd)
+
+                    // Memory Allocation
+                    cityPointer = fopen(path, "r");
+                    noOfPlaces = 0;
+                    while((ch = fgetc(cityPointer)) != EOF){
+                         if(ch == '\n') noOfPlaces++; // Counting number of places in the city from file
+                    }
+
+                    // Allocating Memory for places array
+                    places = (char**) malloc(noOfPlaces * sizeof(char*));
+                    for(i = 0 ; i < noOfPlaces ; i++){
+                         places[i] = (char*) malloc(max_num_of_characters * sizeof(char));
+                    }
+
+                    // Allocating Memory for metro array
+                    metro = (int*) malloc(noOfPlaces * sizeof(int));
+
+                    // Allocating Memory for City Adjacency Matrix
+                    city_adj_mat = (int**) malloc(noOfPlaces * sizeof(int*));
+                    for(i = 0 ; i < noOfPlaces ; i++){
+                         city_adj_mat[i] = (int*) malloc(noOfPlaces * sizeof(int));
+                    }
+                    
+                    fclose(cityPointer); // Closing the File as the pointer reached EOF
+
+                    // Initializing places and metro arrays by taking data from file
+                    cityPointer = fopen(path, "r"); // Opening the file again
+                    i = 0;
+                    while(fscanf(cityPointer, "%s %d\n", place, &metroAvailability) != EOF){
+                         strcpy(places[i], place);
+                         metro[i] = metroAvailability;
+                         i++;
+                    }
+                    fclose(cityPointer); // Closing the file
+
+                    for(i = 0 ; i < noOfPlaces ; i++)
+                         for(j = 0 ; j < noOfPlaces ; j++)
+                              city_adj_mat[i][j] = 0; // Initializing the adj_mat
+               
+                    formCity(city1); // Connects the Places in form of a graph and forms a city
+                    
+                    // Map of the corresponding city will be shown
+                    printf("\nMap:\n");
+                    displayMap();
+                    printf("\n");
+
+                    EazyFinder();
+                    break;
+
+               case 2:
+                    transactionHistory();
+                    break;
+
+               case 3:
+                    passwordChange();
+                    break;
+               
+               case 4:
+                    printf("Are You Sure[Y/N]? ");
+                    scanf(" %c", &choice);
+                    if(tolower(choice) == 'y')
+                         accountDeletion('A');
+                    break;
+               
+               default: printf("Invalid Option\n");
+          } // switch case ends here
+          printf("Want to Select between Options Again [Y/N]? ");
+          scanf(" %c", &choice);
+     }while(tolower(choice) == 'y');
+}
+
+void main()
+{
+     bool returned;
+     char choice;
      do{
           returned = callSignupLogin();
           if(returned){
-               do{
-                    printf("\nSelect an Option:\n");
-                    printf("1) Bookings\n2) Transaction History\n3) Password Change\n4) Account Deletion\n");
-                    scanf("%d", &menuChoice);
-
-                    switch(menuChoice){
-                         case 1:
-                              printf("\n---------------------Welcome to EazyFinder!!!!---------------------\n");
-                              printf("Select one of the City IDs:\n1) Hyderabad\n2) Bengaluru\n3) Chennai\n");
-                              scanf("%d", &cityChoice);
-                              do{
-                                   switch(cityChoice){
-                                        case 1: strcpy(city, "hyderabad"); // Hyderabad
-                                             break;
-                                        case 2: strcpy(city, "bengaluru"); // Bengaluru
-                                             break;
-                                        case 3: strcpy(city, "chennai"); // Chennai
-                                             break;
-                                        default:printf("Please Select a valid Option\nSelect one of the City IDs: ");
-                                             scanf("%d", &cityChoice);
-                                   }
-                              }while(cityChoice < 1 || cityChoice > 3);
-
-                              strcpy(city1, city); //city1 is used as a parameter for formCity function, just like a container for city string
-                              strcat(city, ".txt"); // .txt is concatenated to get the full file name
-                              strcat(path, city); // city file name is concatenated to the path (cwd)
-
-                              // Memory Allocation
-                              cityPointer = fopen(path, "r");
-                              noOfPlaces = 0;
-                              while((ch = fgetc(cityPointer)) != EOF){
-                                   if(ch == '\n') noOfPlaces++; // Counting number of places in the city from file
-                              }
-
-                              // Allocating Memory for places array
-                              places = (char**) malloc(noOfPlaces * sizeof(char*));
-                              for(i = 0 ; i < noOfPlaces ; i++){
-                                   places[i] = (char*) malloc(max_num_of_characters * sizeof(char));
-                              }
-
-                              // Allocating Memory for metro array
-                              metro = (int*) malloc(noOfPlaces * sizeof(int));
-
-                              // Allocating Memory for City Adjacency Matrix
-                              city_adj_mat = (int**) malloc(noOfPlaces * sizeof(int*));
-                              for(i = 0 ; i < noOfPlaces ; i++){
-                                   city_adj_mat[i] = (int*) malloc(noOfPlaces * sizeof(int));
-                              }
-                              
-                              fclose(cityPointer); // Closing the File as the pointer reached EOF
-
-                              // Initializing places and metro arrays by taking data from file
-                              cityPointer = fopen(path, "r"); // Opening the file again
-                              i = 0;
-                              while(fscanf(cityPointer, "%s %d\n", place, &metroAvailability) != EOF){
-                                   strcpy(places[i], place);
-                                   metro[i] = metroAvailability;
-                                   i++;
-                              }
-                              fclose(cityPointer); // Closing the file
-
-                              for(i = 0 ; i < noOfPlaces ; i++)
-                                   for(j = 0 ; j < noOfPlaces ; j++)
-                                        city_adj_mat[i][j] = 0; // Initializing the adj_mat
-                         
-                              formCity(city1); // Connects the Places in form of a graph and forms a city
-                              
-                              // Map of the corresponding city will be shown
-                              printf("\nMap:\n");
-                              displayMap();
-                              printf("\n");
-
-                              EazyFinder();
-
-                              choice = 'N';
-                              break;
-
-                         case 2:
-                              transactionHistory();
-                              break;
-
-                         case 3:
-                              passwordChange();
-                              break;
-                         
-                         case 4:
-                              printf("Are You Sure[Y/N]? ");
-                              scanf(" %c", &choice);
-                              if(tolower(choice) == 'y')
-                                   accountDeletion();
-                              break;
-                         
-                         default: printf("Invalid Option\n");
-                    }
-                    printf("Want to Continue[Y/N]? ");
-                    scanf(" %c", &choice);
-               }while(tolower(choice) == 'y');
+               MainCode();
+               choice = 'N';
           } else {
-               printf("Want to Try Again [Y/N]? ");
+               printf("Want to Try Again [Y/N]? "); // If login signup fails
                scanf(" %c", &choice); // If 'Y' the user will get a chance to again signup/login
           }
           if(choice == 'N' || choice == 'n')
-                    printf("Have A Great Day Ahead! :)\n");
-          }while(choice == 'Y' || choice == 'y');
-     }
+               printf("Have A Great Day Ahead! :)\n");
+     }while(choice == 'Y' || choice == 'y');
 }
