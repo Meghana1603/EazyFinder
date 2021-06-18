@@ -1,0 +1,2 @@
+From: lbnagar, To: ameerpet, Actual Cost: 100, Coupon Code: WELCOME, Discount: 10, Total Cost: 90
+From: lbnagar, To: ameerpet, Actual Cost: 100, Coupon Code: -, Discount: 0, Total Cost: 100
