@@ -7,6 +7,7 @@
 #include<windows.h>
 #include<conio.h>
 #include<time.h>
+#include<dos.h>
 #include<unistd.h>
 #define max_num_of_characters 20 // This is the max size of the no. of characters in places
 #define noOfVehicles 5
@@ -46,6 +47,7 @@ int cost_per_km[] = {2, 3, 4, 5, 6};
 char start_time[noOfVehicles-1][10], end_time[noOfVehicles-1][10]; // Bus is available everytime
 int extra_cost[noOfVehicles];
 char username[20], password[maxPasswordLength + 1];
+char timeString[9];
 
 typedef struct mode_of_transport{
      char source[max_num_of_characters], destination[max_num_of_characters], mst[6];
@@ -60,9 +62,20 @@ void loadDetails(char source[], char destination[], int cost,
      strcat(path, "\\TransactionHistories\\");
      strcpy(userFileName, username);
      strcat(userFileName, ".txt");
+
+     // get current date
+     int date, month, year;
+     time_t current_time;
+     time(&current_time);
+     struct tm *local = localtime(&current_time);
+     date = local->tm_mday;	// get day of month (1 to 31)
+	month = local->tm_mon + 1;  // get month of year (0 to 11)
+	year = local->tm_year + 1900;   // get year since 1900
+
      FILE *userFilePointer = fopen(strcat(path, userFileName), "a");
-     fprintf(userFilePointer, "From: %s, To: %s, Actual Cost: %d, Coupon Code: %s, Discount: %d, Total Cost: %d\n", 
-                    source, destination, cost, couponName, couponDiscount, total_cost);
+     fprintf(userFilePointer, "From: %s, To: %s, Actual Cost: %d, Coupon Code: %s, Discount: %d, Total Cost: %d, Booking Date: %d/%d/%d, Booking Time: %s\n", 
+                    source, destination, cost, couponName, couponDiscount, total_cost,
+                    date, month, year, timeString);
      fclose(userFilePointer);
 }
 
@@ -196,7 +209,6 @@ int inputID(){ // Takes the Vehicle ID as Input
      return id;
 }
 
-char timeString[9];
 void currentTime(){
      time_t current_time;
      struct tm * time_info;
@@ -620,7 +632,6 @@ void passwordChange(){
           new = true;
           printf("Enter New Password: ");
           passwordInput(newPassword, 'S', 'P');
-          printf("\n\n%s %s\n\n", password, newPassword);
           if(strcmp(newPassword, password) == 0){
                printf("Password Cannot be same as Previous One\n");
                new = false;
@@ -758,8 +769,6 @@ void MainCode(){
      int i, j, cityChoice, metroAvailability;
      char city[10], city1[10], place[max_num_of_characters], path[100];
      FILE *cityPointer;
-     getcwd(path, sizeof(path)); // copies the current working directory into path string
-     strcat(path, "\\CitiesInfo\\");
 
      // Variables used for Login Signup Code
      char choice, ch;
@@ -788,6 +797,8 @@ void MainCode(){
                          }
                     }while(cityChoice < 1 || cityChoice > 3);
 
+                    getcwd(path, sizeof(path)); // copies the current working directory into path string
+                    strcat(path, "\\CitiesInfo\\");
                     strcpy(city1, city); //city1 is used as a parameter for formCity function, just like a container for city string
                     strcat(city, ".txt"); // .txt is concatenated to get the full file name
                     strcat(path, city); // city file name is concatenated to the path (cwd)
