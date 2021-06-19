@@ -9,6 +9,7 @@
 #include<time.h>
 #include<dos.h>
 #include<unistd.h>
+
 #define max_num_of_characters 20 // This is the max size of the no. of characters in places
 #define noOfVehicles 5
 #define coupon_length 8 // 7 for coupon and 1 for '\0'
@@ -32,7 +33,8 @@ void printRoute(int source_index, int destination_index, int shortestPath[], int
 int inputID();
 void currentTime();
 void modeOfTransportBasedOnTraffic(int k, char route[][max_num_of_characters]);
-void loadDetails(char source[], char destination[], int cost, char couponName[], int couponDiscount, int total_cost);
+void loadDetails(char source[], char destination[], int cost, char couponName[],
+                 int couponDiscount, int total_cost);
 
 // Add-Ons
 void transactionHistory();
@@ -43,7 +45,7 @@ int noOfPlaces;
 char **places;
 int **city_adj_mat, *metro;
 char vehicles[][6] = {"Bus", "Bike", "Auto", "Metro", "Cab"};
-int cost_per_km[] = {2, 3, 4, 5, 6};
+int cost_per_km[] = {5, 6, 7, 8, 10};
 char start_time[noOfVehicles-1][10], end_time[noOfVehicles-1][10]; // Bus is available everytime
 int extra_cost[noOfVehicles];
 char username[20], password[maxPasswordLength + 1];
@@ -125,12 +127,12 @@ int discount(int cost, mode_of_transport mst_array[], int l){
      if(couponApplicable){
           printf("Coupons Applicable for you are:\n");
           if(welcome){
-               printf("Coupon Code: %s Discount: %d on bookings of Rs.%d or above.\n",
+               printf("Coupon Code: %s\tDiscount: %d\ton bookings of Rs.%d or above.\n",
                       couponName[0], couponDiscount[0], couponPrice[0]);
           }
           for(i = 1 ; i < couponsAvailable ; i++){
                if(cost >= couponPrice[i])
-                    printf("Coupon Code: %s Discount: %d on bookings Rs.%d or above.\n",couponName[i],couponDiscount[i],couponPrice[i]);
+                    printf("Coupon Code: %s\tDiscount: %d\ton bookings of Rs.%d or above.\n",couponName[i],couponDiscount[i],couponPrice[i]);
           }
           
           char couponCode[coupon_length], applyCoupon;
@@ -159,7 +161,7 @@ int discount(int cost, mode_of_transport mst_array[], int l){
                }
           }
           else {
-               printf("Thank You!!\n");
+               printf("No Coupon Applied\nTotal Cost: %.1f\n", (float)cost);
                return -1;
           }
      } 
@@ -218,16 +220,20 @@ void currentTime(){
 }
 
 void modeOfTransportBasedOnTraffic(int k, char route[][max_num_of_characters]){
-     int i, j, l = 0, id, extraCost, extraCostApplied[noOfVehicles-1];
+     int i, j, l = 0, id, extraCost, extraCostApplied[noOfVehicles];
      char trafficChoice, startTimeString[9], endTimeString[9];
      float traffic;
      int source_index, destination_index;
      mode_of_transport mst_array[k-1];
 
+     char path[150];
+     getcwd(path, sizeof(path));
+     strcat(path, "\\CitiesInfo\\availability-times.txt");
+
      // Initializing start and end times from file
      extra_cost[0] = 0;
      i = 1; // As Bus is available all of the time
-     FILE *availabilityTimePointer = fopen("P:\\EazyFinderProject\\CitiesInfo\\availability-times.txt", "r");
+     FILE *availabilityTimePointer = fopen(path, "r");
      while(fscanf(availabilityTimePointer, "%s %s %d\n", startTimeString, endTimeString, &extraCost) != EOF){
           //printf("Start: %s End: %s ExtraCost: %d\n",startTimeString,endTimeString,extraCost);
           strcpy(start_time[i-1], startTimeString);
@@ -249,8 +255,9 @@ void modeOfTransportBasedOnTraffic(int k, char route[][max_num_of_characters]){
 
      // Display Cost Per Vehicle Table
      printf("\nCost Per Kilometer of Vehicles Available:\n");
-     printf("Id \t Vehicle \t Price \t   ExtraCost\n");
+     printf("Id\tVehicle \t Price \t   ExtraCost\n");
      printf("%d \t %s \t\t %d \t\t -\n", 1, vehicles[0], cost_per_km[0]);
+     
      extraCostApplied[0] = 0;
      for (i = 1 ; i < noOfVehicles; i++){ // 5 Vehicles
           printf("%d \t %s \t\t %d", i + 1, vehicles[i], cost_per_km[i]);
@@ -271,9 +278,9 @@ void modeOfTransportBasedOnTraffic(int k, char route[][max_num_of_characters]){
                if(traffic == 0){
                     printf("\nThe route is Clear from %s to %s\n", route[i], route[i-1]);
                } else if(traffic > 0 && traffic <= 0.5){
-                    printf("\nTheir is Moderate Traffic from %s to %s\n", route[i], route[i-1]);
+                    printf("\nThere is Moderate Traffic from %s to %s\n", route[i], route[i-1]);
                } else if(traffic > 0.5 && traffic <= 1){
-                    printf("\nTheir is Heavy Traffic from %s to %s\n", route[i], route[i-1]);
+                    printf("\nThere is Heavy Traffic from %s to %s\n", route[i], route[i-1]);
                }
                for(j = 0 ; j < noOfPlaces ; j++){
                     if(strcmp(places[j], route[i]) == 0) source_index = j;
@@ -633,7 +640,7 @@ void passwordChange(){
           printf("Enter New Password: ");
           passwordInput(newPassword, 'S', 'P');
           if(strcmp(newPassword, password) == 0){
-               printf("Password Cannot be same as Previous One\n");
+               printf("\nPassword Cannot be same as Previous One\n");
                new = false;
           }
      }while(!new);
@@ -671,7 +678,7 @@ void transactionHistory(){
 
 void displayMap(){
      int i, j;
-     printf(" From\t\t\t To\t\tDistance\n");
+     printf("\n From\t\t\t To\t\tDistance\n");
      for(i = 0 ; i < noOfPlaces ; i++){
           for(j = 0 ; j < noOfPlaces ; j++){
                if(city_adj_mat[i][j]){
