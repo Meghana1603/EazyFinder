@@ -34,7 +34,7 @@ int inputID();
 void currentTime();
 void modeOfTransportBasedOnTraffic(int k, char route[][max_num_of_characters]);
 void loadDetails(char source[], char destination[], int cost, char couponName[],
-                 int couponDiscount, int total_cost);
+                 int couponDiscount, float total_cost);
 
 // Add-Ons
 void transactionHistory();
@@ -57,7 +57,7 @@ typedef struct mode_of_transport{
 } mode_of_transport;
 
 void loadDetails(char source[], char destination[], int cost,
-                 char couponName[], int couponDiscount, int total_cost){
+                 char couponName[], int couponDiscount, float total_cost){
                       
      char path[100], userFileName[100];
      getcwd(path, sizeof(path));
@@ -75,8 +75,8 @@ void loadDetails(char source[], char destination[], int cost,
 	year = local->tm_year + 1900;   // get year since 1900
 
      FILE *userFilePointer = fopen(strcat(path, userFileName), "a");
-     fprintf(userFilePointer, "From: %s, To: %s, Actual Cost: %d, Coupon Code: %s, Discount: %d, Total Cost: %d, Booking Date: %d/%d/%d, Booking Time: %s\n", 
-                    source, destination, cost, couponName, couponDiscount, total_cost,
+     fprintf(userFilePointer, "From: %s, To: %s, Actual Cost: %0.1f, Coupon Code: %s, Discount: %d, Total Cost: %0.1f, Booking Date: %d/%d/%d, Booking Time: %s\n", 
+                    source, destination, (float)cost, couponName, couponDiscount, total_cost,
                     date, month, year, timeString);
      fclose(userFilePointer);
 }
@@ -190,8 +190,7 @@ void generate_bill(mode_of_transport mst_array[], int l){
           scanf(" %c", &tryAgain);
           if(tolower(tryAgain) == 'y')
                discountSuccess = discount(cost, mst_array, l);
-          else
-               break;
+          else break;
      }
      if(discountSuccess == -1){
           loadDetails(mst_array[0].source, mst_array[l-1].destination,
@@ -235,7 +234,6 @@ void modeOfTransportBasedOnTraffic(int k, char route[][max_num_of_characters]){
      i = 1; // As Bus is available all of the time
      FILE *availabilityTimePointer = fopen(path, "r");
      while(fscanf(availabilityTimePointer, "%s %s %d\n", startTimeString, endTimeString, &extraCost) != EOF){
-          //printf("Start: %s End: %s ExtraCost: %d\n",startTimeString,endTimeString,extraCost);
           strcpy(start_time[i-1], startTimeString);
           strcpy(end_time[i-1], endTimeString);
           extra_cost[i] = extraCost;
@@ -614,12 +612,13 @@ void accountDeletion(char case_){
      fclose(loginSignupPointer);
      fclose(tempFilePointer);
 
-     // Renaming Files
-     rename("LogInSignUpDatabase.txt", "tempFile1.txt");
-     rename("tempFile.txt", "LogInSignUpDatabase.txt");
-     rename("tempFile1.txt", "tempFile.txt");
+     // Remove LogInSignUpDatabase.txt and
+     // rename tempFile.txt as LogInSignUpDatabase.txt
+     if(!remove("LogInSignUpDatabase.txt")){
+          rename("tempFile.txt", "LogInSignUpDatabase.txt");
+     }
 
-     if(case_ != 'P'){
+     if(case_ != 'P'){ // If case is not Password Change
           char path[150], userFileName[30];
           getcwd(path, sizeof(path));
           strcat(path, "\\TransactionHistories\\");
@@ -642,8 +641,10 @@ void passwordChange(){
           if(strcmp(newPassword, password) == 0){
                printf("\nPassword Cannot be same as Previous One\n");
                new = false;
+          } else {
+               printf("\nPassword Changed Successfully\n");
           }
-     }while(!new);
+     } while(!new);
      strcpy(password, newPassword);
      accountDeletion('P');
      FILE* loginSignupPointer = fopen("LogInSignUpDatabase.txt", "a");
@@ -753,6 +754,7 @@ bool SignUp_LogIn(char ch){
                     return true;
                }
           }
+          fclose(adminFile);
           printf("No User with the Given Credentials\n");
           return false;
      }
@@ -783,7 +785,7 @@ void MainCode(){
      int menuChoice;
      do{
           printf("\nSelect an Option:\n");
-          printf("1) Bookings\n2) Transaction History\n3) Password Change\n4) Account Deletion\n");
+          printf("1) Bookings\n2) Transaction History\n3) Password Change\n4) Account Deletion\n5) Logout\n");
           scanf("%d", &menuChoice);
 
           switch(menuChoice){
@@ -872,6 +874,10 @@ void MainCode(){
                     if(tolower(choice) == 'y')
                          accountDeletion('A');
                     break;
+
+               case 5:
+                    printf("Logged Out Successfully\n");
+                    exit(0);
                
                default: printf("Invalid Option\n");
           } // switch case ends here
