@@ -1,2 +1,3 @@
-From: lbnagar, To: ameerpet, Actual Cost: 100, Coupon Code: WELCOME, Discount: 10, Total Cost: 90
-From: lbnagar, To: ameerpet, Actual Cost: 100, Coupon Code: -, Discount: 0, Total Cost: 100
+From: lbnagar, To: ameerpet, Actual Cost: 100, Coupon Code: WELCOME, Discount: 10, Total Cost: 90, Booking Date: 21/6/2021, Booking Time: 11:15:49
+From: lbnagar, To: ameerpet, Actual Cost: 85.0, Coupon Code: -, Discount: 0, Total Cost: 85.0, Booking Date: 21/6/2021, Booking Time: 11:30:30
+From: ameerpet, To: lbnagar, Actual Cost: 85.0, Coupon Code: DER157Q, Discount: 25, Total Cost: 63.7, Booking Date: 21/6/2021, Booking Time: 11:45:26
