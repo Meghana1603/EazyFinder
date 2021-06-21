@@ -11,7 +11,7 @@ This project contains a graph that has places of a city that are connected by th
      <li>Transaction History</li> 
      <li>Password Change</li> 
      <li>Account Deletion</li>
-</ul><br>
+</ul>
 4) Password Change Facility is provided <br>
 5) Acccount Deletion Facility is provided <br>
 6) Providing our services in Hyderabad, Bengaluru, Chennai <br>
